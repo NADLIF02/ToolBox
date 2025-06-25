@@ -1,9 +1,7 @@
 from celery import Celery
-from flask import Flask
-from app.extensions import db
 
 celery = Celery('app')
-celery.config_from_object('app.celeryconfig')
+celery.config_from_object('app.celeryconfig', namespace='CELERY')
 
 # Optionnel : intégration Flask context
 
