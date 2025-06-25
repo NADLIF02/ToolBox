@@ -37,6 +37,9 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copier le code source
 COPY . .
 
+# Supprimer le dossier logs s'il existe déjà (pour éviter les problèmes de droits)
+RUN rm -rf /app/logs
+
 # Créer les répertoires nécessaires
 RUN mkdir -p /app/logs /app/reports /app/uploads /app/temp
 
