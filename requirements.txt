@@ -88,4 +88,7 @@ websockets==11.0.3
 aiohttp==3.8.5
 
 # Configuration and environment
-python-decouple==3.8 
+python-decouple==3.8
+
+# Additional dependencies
+flask-limiter 
