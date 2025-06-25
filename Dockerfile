@@ -59,4 +59,7 @@ USER toolbox
 EXPOSE 5000
 
 # Commande par défaut
-CMD ["python", "app.py"] 
+CMD ["python", "app.py"]
+
+# Ajouter un diagnostic pour lister les droits juste avant USER toolbox
+RUN ls -l /app/logs 
