@@ -1,0 +1,152 @@
+[tool.poetry]
+name = "toolbox-penetration-testing"
+version = "1.0.0"
+description = "Toolbox Automatisée pour Tests d'Intrusion - «Le partenaire»"
+authors = ["Équipe Toolbox - Master Cybersécurité"]
+readme = "README.md"
+packages = [{include = "app"}, {include = "modules"}]
+
+[tool.poetry.dependencies]
+python = "^3.11"
+# Framework web
+flask = "^2.3.3"
+flask-restful = "^0.3.10"
+flask-sqlalchemy = "^3.0.5"
+flask-migrate = "^4.0.5"
+flask-cors = "^4.0.0"
+flask-jwt-extended = "^4.5.3"
+flask-limiter = "^3.5.0"
+
+# Base de données
+psycopg2-binary = "^2.9.7"
+redis = "^5.0.1"
+sqlalchemy = "^2.0.21"
+
+# Tâches asynchrones
+celery = "^5.3.1"
+flower = "^2.0.1"
+
+# Sécurité et cryptographie
+cryptography = "^41.0.4"
+bcrypt = "^4.0.1"
+PyJWT = "^2.8.0"
+python-dotenv = "^1.0.0"
+
+# Outils de test d'intrusion
+python-nmap = "^0.7.1"
+pymetasploit3 = "^1.0.0"
+python-owasp-zap-v2.4 = "^0.0.20"
+sqlmap = "^1.7.2"
+
+# Analyse forensique
+volatility3 = "^2.4.1"
+yara-python = "^4.3.1"
+pefile = "^2023.2.7"
+capstone = "^4.0.2"
+
+# Reporting et visualisation
+jinja2 = "^3.1.2"
+reportlab = "^4.0.4"
+matplotlib = "^3.7.2"
+plotly = "^5.16.1"
+pandas = "^2.0.3"
+numpy = "^1.24.3"
+
+# Utilitaires
+requests = "^2.31.0"
+beautifulsoup4 = "^4.12.2"
+lxml = "^4.9.3"
+paramiko = "^3.3.1"
+netaddr = "^0.8.0"
+scapy = "^2.5.0"
+
+# API et sérialisation
+marshmallow = "^3.20.1"
+apispec = "^6.3.0"
+flasgger = "^0.9.7.1"
+
+# Validation
+cerberus = "^1.3.5"
+pydantic = "^2.1.1"
+
+# Gestion des fichiers
+python-magic = "^0.4.27"
+Pillow = "^10.0.0"
+
+# Réseau et communication
+websockets = "^11.0.3"
+aiohttp = "^3.8.5"
+
+# Configuration et environnement
+click = "^8.1.7"
+python-decouple = "^3.8"
+
+[tool.poetry.group.dev.dependencies]
+# Tests
+pytest = "^7.4.2"
+pytest-cov = "^4.1.0"
+pytest-mock = "^3.11.1"
+
+# Développement
+black = "^23.7.0"
+flake8 = "^6.0.0"
+mypy = "^1.5.1"
+pre-commit = "^3.3.3"
+
+# Documentation
+sphinx = "^7.1.2"
+sphinx-rtd-theme = "^1.3.0"
+
+[tool.poetry.group.monitoring.dependencies]
+# Monitoring et logging
+structlog = "^23.1.0"
+prometheus-client = "^0.17.1"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.black]
+line-length = 88
+target-version = ['py311']
+include = '\.pyi?$'
+extend-exclude = '''
+/(
+  # directories
+  \.eggs
+  | \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | build
+  | dist
+)/
+'''
+
+[tool.mypy]
+python_version = "3.11"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
+check_untyped_defs = true
+disallow_untyped_decorators = true
+no_implicit_optional = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+warn_no_return = true
+warn_unreachable = true
+strict_equality = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = "-v --tb=short --strict-markers"
+markers = [
+    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
+    "integration: marks tests as integration tests",
+    "unit: marks tests as unit tests",
+] 

@@ -1,0 +1,169 @@
+version: '3.8'
+
+services:
+  # Application principale
+  app:
+    build: .
+    ports:
+      - "5000:5000"
+    environment:
+      - FLASK_ENV=development
+      - DATABASE_URL=postgresql://toolbox:password@postgres:5432/toolbox
+      - REDIS_URL=redis://redis:6379/0
+      - SECRET_KEY=${SECRET_KEY}
+    volumes:
+      - ./app:/app/app
+      - ./modules:/app/modules
+      - ./logs:/app/logs
+      - ./reports:/app/reports
+    depends_on:
+      - postgres
+      - redis
+    networks:
+      - toolbox-network
+
+  # Base de données PostgreSQL
+  postgres:
+    image: postgres:15
+    environment:
+      - POSTGRES_DB=toolbox
+      - POSTGRES_USER=toolbox
+      - POSTGRES_PASSWORD=password
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./docker/postgres/init.sql:/docker-entrypoint-initdb.d/init.sql
+    ports:
+      - "5432:5432"
+    networks:
+      - toolbox-network
+
+  # Redis pour Celery
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - toolbox-network
+
+  # Worker Celery
+  celery-worker:
+    build: .
+    command: celery -A app.celery worker --loglevel=info
+    environment:
+      - DATABASE_URL=postgresql://toolbox:password@postgres:5432/toolbox
+      - REDIS_URL=redis://redis:6379/0
+    volumes:
+      - ./app:/app/app
+      - ./modules:/app/modules
+      - ./logs:/app/logs
+    depends_on:
+      - postgres
+      - redis
+    networks:
+      - toolbox-network
+
+  # Flower pour monitoring Celery
+  flower:
+    build: .
+    command: celery -A app.celery flower --port=5555
+    ports:
+      - "5555:5555"
+    environment:
+      - REDIS_URL=redis://redis:6379/0
+    depends_on:
+      - redis
+    networks:
+      - toolbox-network
+
+  # MinIO pour stockage de fichiers
+  minio:
+    image: minio/minio:latest
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    environment:
+      - MINIO_ROOT_USER=minioadmin
+      - MINIO_ROOT_PASSWORD=minioadmin
+    command: server /data --console-address ":9001"
+    volumes:
+      - minio_data:/data
+    networks:
+      - toolbox-network
+
+  # Nginx pour reverse proxy
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./docker/nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./docker/nginx/ssl:/etc/nginx/ssl
+    depends_on:
+      - app
+    networks:
+      - toolbox-network
+
+  # Prometheus pour monitoring
+  prometheus:
+    image: prom/prometheus:latest
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./docker/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus_data:/prometheus
+    networks:
+      - toolbox-network
+
+  # Grafana pour visualisation
+  grafana:
+    image: grafana/grafana:latest
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    volumes:
+      - grafana_data:/var/lib/grafana
+    depends_on:
+      - prometheus
+    networks:
+      - toolbox-network
+
+  # Elasticsearch pour logs
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.8.0
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+    ports:
+      - "9200:9200"
+    volumes:
+      - elasticsearch_data:/usr/share/elasticsearch/data
+    networks:
+      - toolbox-network
+
+  # Kibana pour visualisation des logs
+  kibana:
+    image: docker.elastic.co/kibana/kibana:8.8.0
+    ports:
+      - "5601:5601"
+    environment:
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+    depends_on:
+      - elasticsearch
+    networks:
+      - toolbox-network
+
+volumes:
+  postgres_data:
+  redis_data:
+  minio_data:
+  prometheus_data:
+  grafana_data:
+  elasticsearch_data:
+
+networks:
+  toolbox-network:
+    driver: bridge 
