@@ -40,9 +40,8 @@ COPY . .
 # Créer les répertoires nécessaires
 RUN mkdir -p /app/logs /app/reports /app/uploads /app/temp
 
-# Créer un utilisateur non-root pour la sécurité
-RUN useradd -m -u 1000 toolbox && \
-    chown -R toolbox:toolbox /app
+# Donner les droits à l'utilisateur toolbox
+RUN chown -R toolbox:toolbox /app
 
 # Changer vers l'utilisateur non-root
 USER toolbox
