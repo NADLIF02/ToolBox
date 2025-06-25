@@ -46,6 +46,9 @@ RUN mkdir -p /app/logs /app/reports /app/uploads /app/temp
 # Créer un utilisateur non-root pour la sécurité
 RUN useradd -m -u 1000 toolbox
 
+# Créer le fichier de log avec les bons droits
+RUN touch /app/logs/toolbox.log && chown toolbox:toolbox /app/logs/toolbox.log
+
 # Donner les droits à l'utilisateur toolbox
 RUN chown -R toolbox:toolbox /app
 
