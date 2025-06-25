@@ -20,7 +20,7 @@ RUN apt-get update && apt-get install -y \
     hydra \
     wireshark \
     tcpdump \
-    netcat \
+    netcat-openbsd \
     telnet \
     openssh-client \
     && rm -rf /var/lib/apt/lists/*
